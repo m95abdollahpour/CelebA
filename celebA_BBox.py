@@ -12,6 +12,14 @@ from matplotlib import pyplot
 from PIL import Image
 from numpy import asarray
 from mtcnn.mtcnn import MTCNN
+import cv2
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+
  
 # extract a single face from a given photograph
 def extract_face(filename, required_size=(224, 224)):
@@ -21,8 +29,14 @@ def extract_face(filename, required_size=(224, 224)):
     detector = MTCNN()
     # detect faces in the image
     results = detector.detect_faces(pixels)
+    print(np.shape(results))
     # extract the bounding box from the first face
-    x1, y1, width, height = results[0]['box']
+    try:
+        
+        x1, y1, width, height = results[0]['box']
+    except:
+        return pixels
+
     x2, y2 = x1 + width, y1 + height
     # extract the face
     face = pixels[y1:y2, x1:x2]
@@ -39,18 +53,16 @@ def extract_face(filename, required_size=(224, 224)):
 
 # poor face detection algorithm
 
-import matplotlib.pyplot as plt
-import numpy as np
-import cv2
-from PIL import Image
-import glob
 
 
+load_dir = '/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba/*.jpg'
+
+cropped_resized_img_dir = "/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba_resized/"
 
 i = 0
 crop_imgs = []
 no_face = []
-filenames = glob.glob('/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba/*.jpg')
+filenames = glob.glob(load_dir)
 filenames.sort()
 for filename in filenames: 
     img = cv2.imread(filename)
@@ -65,18 +77,18 @@ for filename in filenames:
         dim = (64, 64)
         resize_img = cv2.resize(crop_img, dim, interpolation = cv2.INTER_AREA)
         crop_imgs.append(resize_img)
-        cv2.imwrite("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba_resized/" + filename[-10:-4] + ".jpg", resize_img)
+        cv2.imwrite(cropped_resized_img_dir + filename[-10:-4] + ".jpg", resize_img)
         i+= 1
     except:
         # no_face.append(img)
         # crop_imgs.append(np.ones((100,100,3)))
         # cv2.imwrite("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba_resized/" + filename[-10:-4] + ".jpg", np.ones((100,100,3)))
-        pixels = extract_face("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba/000036.jpg")
+        pixels = extract_face(filename)
         dim = (64, 64)
         resize_img = cv2.resize(pixels, dim, interpolation = cv2.INTER_AREA)
         crop_imgs.append(resize_img)
         im_rgb = cv2.cvtColor(resize_img, cv2.COLOR_BGR2RGB)
-        cv2.imwrite("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba_resized/" + filename[-10:-4] + ".jpg", im_rgb)
+        cv2.imwrite(cropped_resized_img_dir + filename[-10:-4] + ".jpg", im_rgb)
 
         print(i)
         i+= 1
@@ -87,12 +99,12 @@ for filename in filenames:
 
 
  
-# load the photo and extract the face
-pixels = extract_face("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba/000036.jpg")
-# plot the extracted face
-pyplot.imshow(pixels)
-# show the plot
-pyplot.show()
+# # load the photo and extract the face
+# pixels = extract_face("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba/000036.jpg")
+# # plot the extracted face
+# pyplot.imshow(pixels)
+# # show the plot
+# pyplot.show()
 
 
 
@@ -101,7 +113,7 @@ pyplot.show()
 i = 0
 crop_imgs = []
 no_face = []
-filenames = glob.glob('/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba/*.jpg')
+filenames = glob.glob(load_dir)
 filenames.sort()
 for filename in filenames: 
 
@@ -110,7 +122,7 @@ for filename in filenames:
     resize_img = cv2.resize(pixels, dim, interpolation = cv2.INTER_AREA)
     crop_imgs.append(resize_img)
     im_rgb = cv2.cvtColor(resize_img, cv2.COLOR_BGR2RGB)
-    cv2.imwrite("/home/abdollahpour/python/Datasets/CelebA/img_align_celeba/img_align_celeba_resized/" + filename[-10:-4] + ".jpg", im_rgb)
+    cv2.imwrite(cropped_resized_img_dir  + filename[-10:-4] + ".jpg", im_rgb)
     i+= 1
     print(i)
 
